@@ -118,6 +118,16 @@
             background: #45a049;
         }
 
+        .clipboard-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+        }
+
+        .clipboard-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+        }
+
         .stats {
             display: flex;
             gap: 20px;
@@ -242,6 +252,7 @@
 
         <div class="button-group">
             <button class="convert-btn" onclick="convertText()">转换标点</button>
+            <button class="clipboard-btn" onclick="convertClipboard()">剪贴板一键转换</button>
             <button class="clear-btn" onclick="clearAll()">清空全部</button>
             <button class="copy-btn" onclick="copyOutput()">复制结果</button>
         </div>
@@ -331,6 +342,60 @@
             output.select();
             document.execCommand('copy');
             showNotification('已复制到剪贴板！');
+        }
+
+        async function convertClipboard() {
+            try {
+                // 检查浏览器是否支持剪贴板API
+                if (!navigator.clipboard) {
+                    showNotification('你的浏览器不支持剪贴板操作', 'error');
+                    return;
+                }
+
+                // 读取剪贴板内容
+                const text = await navigator.clipboard.readText();
+                
+                if (!text.trim()) {
+                    showNotification('剪贴板是空的', 'error');
+                    return;
+                }
+
+                // 执行转换
+                let result = text;
+                let replaceCount = 0;
+
+                const dashMatches = result.match(/----/g);
+                if (dashMatches) {
+                    replaceCount += dashMatches.length;
+                    result = result.replace(/----/g, '——');
+                }
+
+                for (const [half, full] of Object.entries(punctuationMap)) {
+                    if (half === '----') continue;
+                    const regex = new RegExp(half.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                    const matches = result.match(regex);
+                    if (matches) {
+                        replaceCount += matches.length;
+                        result = result.replace(regex, full);
+                    }
+                }
+
+                // 写回剪贴板
+                await navigator.clipboard.writeText(result);
+
+                if (replaceCount > 0) {
+                    showNotification(`✅ 转换完成！共替换${replaceCount}处标点，已写回剪贴板`);
+                } else {
+                    showNotification('未发现需要转换的标点符号', 'info');
+                }
+
+            } catch (err) {
+                if (err.name === 'NotAllowedError') {
+                    showNotification('请允许访问剪贴板权限', 'error');
+                } else {
+                    showNotification('剪贴板操作失败：' + err.message, 'error');
+                }
+            }
         }
 
         function showNotification(message, type = 'success') {
