@@ -4,7 +4,7 @@
 
 ## 🚀 在线使用
 
-访问：[https://你的用户名.github.io/claude-punctuation-fixer](https://你的用户名.github.io/claude-punctuation-fixer)
+访问：[https://jishux2.github.io/claude-punctuation-fixer](https://jishux2.github.io/claude-punctuation-fixer)
 
 ## 🎯 功能特点
 
@@ -108,7 +108,6 @@ php -S localhost:8000
 如果你在使用过程中遇到任何问题或有改进建议，欢迎：
 
 - 在GitHub上提交[Issue](../../issues)
-- 发送邮件到：你的邮箱地址
 - 在项目中提交Pull Request
 
 ---
